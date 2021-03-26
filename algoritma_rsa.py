@@ -76,7 +76,6 @@ def generateKey(p, q):
 
 def encrypt(key, plaintext):
     publicKey, n = key
-    
     result = []
     #cipherText = [pow(ord(x), publicKey, n) for x in plaintext]
     for x in plaintext:
@@ -88,7 +87,6 @@ def encrypt(key, plaintext):
     
 
 def decrypt(key, ciphertext):
-    
     privateKey, n = key
     result = []
     for i in ciphertext:

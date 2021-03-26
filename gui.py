@@ -10,7 +10,7 @@ def encryptGUI():
     mode2 = var2.get()
     message = ent_message.get()
 
-    if(mode == '1' and checkErrorInput()): #input text
+    if(mode == '1'): #input text
         if(mode2 == '1'):
             # print('public =',computeKey()[0])
             # print('fasd =',ent_message.get())
@@ -38,11 +38,13 @@ def decryptGUI():
     mode2 = var2.get()
     message = ent_message.get()
 
-    if(mode == '1' and checkErrorInput()): #input text
+    if(mode == '1'): #input text
         if(mode2 == '1'):
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         elif(mode2 == '2'):
-            lbl_result_text['text'] = decrypt(openFile('.temporary-private'), message)
+            private = (int(openFile1('.temporary-private').split()[0]), int(openFile1('.temporary-private').split()[1]))
+            print('\n',private,'\n')
+            lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
     elif(mode == '2'): #file
         if(mode2 == '1'):
             text = bytearray(decrypt(private, message), 'latin-1')
@@ -62,7 +64,7 @@ def computeKey():
     try:
         global public, private
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
-        print(public,private)
+        print('QWERTY' + public,private)
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
         # return public, private
@@ -110,9 +112,11 @@ def askOpenFile(mode):
             lbl_file_status['text'] = 'Message file successfully loaded'
         elif (mode==2):
             writeFile(f.read(),'.temporary-public')
+            var2.set(2)
             lbl_file_status['text'] = 'Public key successfully loaded'
         elif (mode==3):
             writeFile(f.read(),'.temporary-private')
+            var2.set(2)
             lbl_file_status['text'] = 'Private key successfully loaded'
 
 # Open file in read only and binary mode
