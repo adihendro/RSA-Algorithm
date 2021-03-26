@@ -194,7 +194,7 @@ def save():
     writeFile(text, filename, 'wb')
     file = open(filename)
     file.seek(0, os.SEEK_END)
-    lbl_filesize_text['text'] = file.tell() + 'bytes'
+    lbl_filesize_text['text'] = file.tell(), "bytes"
     lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 # Exit function 
