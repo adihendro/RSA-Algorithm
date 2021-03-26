@@ -16,19 +16,19 @@ def encryptGUI():
             # print('fasd =',ent_message.get())
             lbl_result_text['text'] = encrypt(public, message)
         elif(mode2 == '2'):
-            lbl_result_text['text'] = encrypt(openFile1('.temporary-public'), message)
+            lbl_result_text['text'] = encrypt(openFile('.temporary-public', 'r'), message)
     elif(mode == '2'): #file
         if(mode2 == '1'):
             # print('\n',openFile1('.temporary'))
-            text = encrypt(public, openFile1('.temporary'))
+            text = encrypt(public, openFile('.temporary','r'))
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             # print('\n',''.join(text),'\n')
-            writeFile(''.join(text), filename)
+            writeFile(''.join(text), filename, 'wb')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
-            text = bytearray(encrypt(openFile1('.temporary-public'), openFile('.temporary')), 'latin-1')
+            text = bytearray(encrypt(openFile('.temporary-public','r'), openFile('.temporary','r')), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename)
+            writeFile(text, filename, 'wb')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 def decryptGUI():
@@ -42,19 +42,18 @@ def decryptGUI():
         if(mode2 == '1'):
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         elif(mode2 == '2'):
-            private = (int(openFile1('.temporary-private').split()[0]), int(openFile1('.temporary-private').split()[1]))
-            print('\n',private,'\n')
+            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
     elif(mode == '2'): #file
         if(mode2 == '1'):
             text = bytearray(decrypt(private, message), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename)
+            writeFile(text, filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
-            text = bytearray(decrypt(openFile('.temporary-private'), openFile('.temporary')), 'latin-1')
+            text = bytearray(decrypt(openFile('.temporary-private','r'), openFile('.temporary','r')), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename)
+            writeFile(text, filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 public = (0,0)
@@ -64,12 +63,12 @@ def computeKey():
     try:
         global public, private
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
-        print('QWERTY' + public,private)
+        print('QWERTY', public,private)
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
         # return public, private
-    except:
-        messagebox.showerror('Error')
+    except Exception as e:
+        messagebox.showerror('Error', e)
 
 
 def checkErrorInput():
@@ -107,35 +106,35 @@ def askOpenFile(mode):
     f = askopenfile(mode ='rb') 
     if f is not None: 
         if (mode==1):
-            writeFile(f.read(),'.temporary')
+            writeFile(f.read(),'.temporary', 'wb')
             var1.set(2)
             lbl_file_status['text'] = 'Message file successfully loaded'
         elif (mode==2):
-            writeFile(f.read(),'.temporary-public')
+            writeFile(f.read(),'.temporary-public', 'wb')
             var2.set(2)
             lbl_file_status['text'] = 'Public key successfully loaded'
         elif (mode==3):
-            writeFile(f.read(),'.temporary-private')
+            writeFile(f.read(),'.temporary-private', 'wb')
             var2.set(2)
             lbl_file_status['text'] = 'Private key successfully loaded'
 
-# Open file in read only and binary mode
-def openFile(file):
-    with open(file, 'rb') as f:
+# Open file in read only
+def openFile(file, mode):
+    with open(file, mode) as f:
         return f.read()
 
-def openFile1(file):
-    with open(file, 'r') as f:
-        return f.read()
+# def openFile1(file):
+#     with open(file, 'r') as f:
+#         return f.read()
 
-# Write file in write and binary mode
-def writeFile(text, filename):
-    with open(filename, 'wb') as f:
+# Write file in write
+def writeFile(text, filename, mode):
+    with open(filename, mode) as f:
         f.write(text)
 
-def writeFile1(text, filename):
-    with open(filename, 'w') as f:
-        f.write(text)
+# def writeFile1(text, filename):
+#     with open(filename, 'w') as f:
+#         f.write(text)
 
 # Clear function
 def clear():
@@ -179,7 +178,7 @@ def save():
         return
     text = bytearray(lbl_result_text['text'], 'latin-1')
     filename = ent_file_name.get() + '.' + ent_file_ext.get()
-    writeFile(text, filename)
+    writeFile(text, filename, 'wb')
     lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 # Exit function 
@@ -231,7 +230,7 @@ btn_clear.grid(row=3, column=1, padx=5, pady=5, sticky='e')
 btn_open = Button(master=frm_form, text='Open public key', width=15, command= lambda: askOpenFile(2))
 btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='w')
 btn_open = Button(master=frm_form, text='Open private key', width=15, command= lambda: askOpenFile(3))
-btn_open.grid(row=4, column=2, padx=5, pady=5, sticky='w')
+btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='e')
 lbl_file_status = Label(master=frm_form)
 lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
 
