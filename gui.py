@@ -18,19 +18,16 @@ def encryptGUI():
     if(mode == '1'): #input text
         startTime = time.perf_counter()
         if(mode2 == '1'):
-            # print('public =',computeKey()[0])
-            # print('fasd =',ent_message.get())
             lbl_result_text['text'] = encrypt(public, message)
         elif(mode2 == '2'):
             lbl_result_text['text'] = encrypt(openFile('.temporary-public', 'r'), message)
         endTime = time.perf_counter()
+
     elif(mode == '2'): #file
         startTime = time.perf_counter()
         if(mode2 == '1'):
-            # print('\n',openFile1('.temporary'))
             text = encrypt(public, openFile('.temporary','r'))
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            # print('\n',''.join(text),'\n')
             writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
@@ -60,19 +57,16 @@ def decryptGUI():
             private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         endTime = time.perf_counter()
+
     elif(mode == '2'): #file
         startTime = time.perf_counter()
         if(mode2 == '1'):
-            # message = openFile('.temporary').s
-            print('\n',decrypt(private, openFile('.temporary', 'r').split()),'\n')
             text = decrypt(private, openFile('.temporary', 'r').split())
-            # text = bytearray(decrypt(private, openFile('.temporary', 'r').split()), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            print('\n',''.join(chr(i) for i in text),'\n',)
             writeFile(''.join(chr(i) for i in text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
-            text = bytearray(decrypt(openFile('.temporary-private','r'), openFile('.temporary','r')), 'latin-1')
+            text = bytearray(decrypt(private, openFile('.temporary','r')), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(text, filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
@@ -86,10 +80,8 @@ def computeKey():
     try:
         global public, private
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
-        # print('QWERTY', public,private)
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
-        # return public, private
     except Exception as e:
         messagebox.showerror('Error', e)
 
@@ -126,6 +118,7 @@ def checkErrorFile():
     return status
 
 def askOpenFile(mode):
+    global public, private
     f = askopenfile(mode ='rb') 
     if f is not None: 
         if (mode==1):
@@ -134,10 +127,14 @@ def askOpenFile(mode):
             lbl_file_status['text'] = 'Message file successfully loaded'
         elif (mode==2):
             writeFile(f.read(),'.temporary-public', 'wb')
+            public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
+            lbl_public_text['text'] = public
             var2.set(2)
             lbl_file_status['text'] = 'Public key successfully loaded'
         elif (mode==3):
             writeFile(f.read(),'.temporary-private', 'wb')
+            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
+            lbl_private_text['text'] = private
             var2.set(2)
             lbl_file_status['text'] = 'Private key successfully loaded'
 
@@ -146,18 +143,10 @@ def openFile(file, mode):
     with open(file, mode) as f:
         return f.read()
 
-# def openFile1(file):
-#     with open(file, 'r') as f:
-#         return f.read()
-
 # Write file in write
 def writeFile(text, filename, mode):
     with open(filename, mode) as f:
         f.write(text)
-
-# def writeFile1(text, filename):
-#     with open(filename, 'w') as f:
-#         f.write(text)
 
 # Clear function
 def clear():
@@ -168,8 +157,10 @@ def clear():
     ent_file_ext.delete(0,END)
     lbl_file_status['text'] = ''
     lbl_public_text['text'] = ''
-    lbl_public_text['text'] = ''
+    lbl_private_text['text'] = ''
     lbl_result_text['text'] = 'Click button above to see magic'
+    lbl_time_text['text'] = ''
+    lbl_filesize_text['text'] = ''
 
 # Copy function
 def copy():
@@ -190,9 +181,7 @@ def saveKey():
     filename_private = 'private-key.pri'
     writeFile(lbl_public_text['text'], filename_public, 'w')
     writeFile(lbl_private_text['text'], filename_private, 'w')
-    lbl_result_text['text'] = 'Success! Saved in ' + filename_public + ' and ' + filename_private
-    print(openFile(filename_public, 'r'))
-    print(openFile(filename_private, 'r'))
+    lbl_file_status['text'] = 'Success! Saved in ' + filename_public + ' and ' + filename_private
 
 # Save function
 def save():
@@ -298,7 +287,9 @@ lbl_mode.grid(row=11, column=0, padx=5, pady=5, sticky="w")
 rad_mode = Radiobutton(master=frm_form,text='Input Message', variable = var1, value=1)
 rad_mode.grid(row=11, column=1, padx=5, pady=5, sticky='w')
 rad_mode = Radiobutton(master=frm_form,text='File Message', variable = var1, value=2)
-rad_mode.grid(row=12, column=1, padx=5, pady=5, sticky='w')
+rad_mode.grid(row=11, column=1, padx=5, pady=5)
+
+
 
 # Key mode
 lbl_mode = Label(master=frm_form, text='Key mode:')
@@ -306,7 +297,7 @@ lbl_mode.grid(row=13, column=0, padx=5, pady=5, sticky="w")
 rad_mode = Radiobutton(master=frm_form,text='Input Key', variable = var2, value=1)
 rad_mode.grid(row=13, column=1, padx=5, pady=5, sticky='w')
 rad_mode = Radiobutton(master=frm_form,text='File Key', variable = var2, value=2)
-rad_mode.grid(row=14, column=1, padx=5, pady=5, sticky='w')
+rad_mode.grid(row=13, column=1, padx=5, pady=5)
 
 
 
@@ -345,17 +336,20 @@ lbl_file_ext.grid(row=20, column=0, padx=5, pady=5, sticky="w")
 ent_file_ext.grid(row=20, column=1, padx=5, pady=5)
 
 
-btn_save = Button(master=frm_form, text='Save ciphertext to file', width=18, command=save)
-btn_save.grid(row=21, column=1, padx=5, pady=5, sticky="w")
-btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
-btn_exit.grid(row=21, column=1, padx=5, pady=5, sticky='e')
-
-
 # File size information
 lbl_filesize = Label(master=frm_form, text='File size:')
 lbl_filesize_text = Label(master=frm_form, text='')
 lbl_filesize.grid(row=21, column=0, padx=5, pady=5, sticky="w")
 lbl_filesize_text.grid(row=21, column=1, padx=5, pady=5, sticky="w")
+
+
+btn_save = Button(master=frm_form, text='Save ciphertext to file', width=18, command=save)
+btn_save.grid(row=22, column=1, padx=5, pady=5, sticky="w")
+btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
+btn_exit.grid(row=22, column=1, padx=5, pady=5, sticky='e')
+
+
+
 
 # Keeps window alive 
 window.mainloop()
