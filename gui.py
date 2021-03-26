@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askopenfile
 from algoritma_rsa import *
+import time
 
 def encryptGUI():
     global public, private
@@ -11,13 +12,16 @@ def encryptGUI():
     message = ent_message.get()
 
     if(mode == '1'): #input text
+        startTime = time.perf_counter()
         if(mode2 == '1'):
             # print('public =',computeKey()[0])
             # print('fasd =',ent_message.get())
             lbl_result_text['text'] = encrypt(public, message)
         elif(mode2 == '2'):
             lbl_result_text['text'] = encrypt(openFile1('.temporary-public'), message)
+        endTime = time.perf_counter()
     elif(mode == '2'): #file
+        startTime = time.perf_counter()
         if(mode2 == '1'):
             # print('\n',openFile1('.temporary'))
             text = encrypt(public, openFile1('.temporary'))
@@ -30,6 +34,9 @@ def encryptGUI():
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(text, filename)
             lbl_result_text['text'] = 'Success! Saved in ' + filename
+        endTime = time.perf_counter()
+    lbl_time_text['text'] = endTime - startTime
+
 
 def decryptGUI():
     global public, private
@@ -39,13 +46,16 @@ def decryptGUI():
     message = ent_message.get()
 
     if(mode == '1'): #input text
+        startTime = time.perf_counter()
         if(mode2 == '1'):
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         elif(mode2 == '2'):
             private = (int(openFile1('.temporary-private').split()[0]), int(openFile1('.temporary-private').split()[1]))
             print('\n',private,'\n')
             lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
+        endTime = time.perf_counter()
     elif(mode == '2'): #file
+        startTime = time.perf_counter()
         if(mode2 == '1'):
             text = bytearray(decrypt(private, message), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
@@ -56,6 +66,8 @@ def decryptGUI():
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(text, filename)
             lbl_result_text['text'] = 'Success! Saved in ' + filename
+        endTime = time.perf_counter()
+    lbl_time_text['text'] = endTime - startTime
 
 public = (0,0)
 private = (0,0)
@@ -64,7 +76,7 @@ def computeKey():
     try:
         global public, private
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
-        print('QWERTY' + public,private)
+        print('QWERTY', public,private)
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
         # return public, private
@@ -290,6 +302,13 @@ lbl_result = Label(master=frm_form, text='Result:')
 lbl_result_text = Label(master=frm_form, text='Click button above to see magic')
 lbl_result.grid(row=16, column=0, padx=5, pady=5, sticky="w")
 lbl_result_text.grid(row=16, column=1, padx=5, pady=5, sticky="w")
+
+
+# Processing time label
+lbl_time = Label(master=frm_form, text='Processing Time:')
+lbl_time_text = Label(master=frm_form, text='')
+lbl_time.grid(row=16, column=2, padx=5, pady=5, sticky="w")
+lbl_time_text.grid(row=16, column=3, padx=5, pady=5, sticky="w")
 
 # Action button
 btn_copy = Button(master=frm_form, text='Copy result', width=10, command=copy)
