@@ -11,6 +11,9 @@ def encryptGUI():
     mode2 = var2.get()
     message = ent_message.get()
 
+    if(lbl_public_text['text']==''):
+        computeKey()
+
     if(mode == '1'): #input text
         startTime = time.perf_counter()
         if(mode2 == '1'):
@@ -27,12 +30,12 @@ def encryptGUI():
             text = encrypt(public, openFile('.temporary','r'))
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             # print('\n',''.join(text),'\n')
-            writeFile(''.join(text), filename, 'wb')
+            writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
             text = bytearray(encrypt(openFile('.temporary-public','r'), openFile('.temporary','r')), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename, 'wb')
+            writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         endTime = time.perf_counter()
     lbl_time_text['text'] = endTime - startTime
@@ -45,6 +48,9 @@ def decryptGUI():
     mode2 = var2.get()
     message = ent_message.get()
 
+    if(lbl_public_text['text']==''):
+        computeKey()
+
     if(mode == '1'): #input text
         startTime = time.perf_counter()
         if(mode2 == '1'):
@@ -56,9 +62,13 @@ def decryptGUI():
     elif(mode == '2'): #file
         startTime = time.perf_counter()
         if(mode2 == '1'):
-            text = bytearray(decrypt(private, message), 'latin-1')
+            # message = openFile('.temporary').s
+            print('\n',decrypt(private, openFile('.temporary', 'r').split()),'\n')
+            text = decrypt(private, openFile('.temporary', 'r').split())
+            # text = bytearray(decrypt(private, openFile('.temporary', 'r').split()), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename, 'w')
+            print('\n',''.join(chr(i) for i in text),'\n',)
+            writeFile(''.join(chr(i) for i in text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
             text = bytearray(decrypt(openFile('.temporary-private','r'), openFile('.temporary','r')), 'latin-1')
@@ -75,7 +85,7 @@ def computeKey():
     try:
         global public, private
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
-        print('QWERTY', public,private)
+        # print('QWERTY', public,private)
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
         # return public, private
@@ -156,6 +166,9 @@ def clear():
     ent_file_name.delete(0,END)
     ent_file_ext.delete(0,END)
     lbl_file_status['text'] = ''
+    lbl_public_text['text'] = ''
+    lbl_public_text['text'] = ''
+    lbl_result_text['text'] = 'Click button above to see magic'
 
 # Copy function
 def copy():
@@ -174,11 +187,11 @@ def saveKey():
     text_private = bytearray(lbl_private_text['text'], 'latin-1')
     filename_public = 'public-key.pub'
     filename_private = 'private-key.pri'
-    writeFile1(lbl_public_text['text'], filename_public)
-    writeFile1(lbl_private_text['text'], filename_private)
+    writeFile(lbl_public_text['text'], filename_public, 'w')
+    writeFile(lbl_private_text['text'], filename_private, 'w')
     lbl_result_text['text'] = 'Success! Saved in ' + filename_public + ' and ' + filename_private
-    print(openFile1(filename_public))
-    print(openFile1(filename_private))
+    print(openFile(filename_public, 'r'))
+    print(openFile(filename_private, 'r'))
 
 # Save function
 def save():
@@ -213,19 +226,19 @@ frm_form.pack()
 
 # Message label
 lbl_text = Label(master=frm_form, text='Enter message:')
-ent_message = Entry(master=frm_form, width=30)
+ent_message = Entry(master=frm_form, width=50)
 lbl_text.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 ent_message.grid(row=0, column=1, padx=5, pady=5)
 
 # Key label
 lbl_p = Label(master=frm_form, text='Enter p:')
-ent_p = Entry(master=frm_form, width=30)
+ent_p = Entry(master=frm_form, width=50)
 lbl_p.grid(row=1, column=0, padx=5, pady=5, sticky='w')
 ent_p.grid(row=1, column=1, padx=5, pady=5)
 
 # Key label
 lbl_q = Label(master=frm_form, text='Enter q:')
-ent_q = Entry(master=frm_form, width=30)
+ent_q = Entry(master=frm_form, width=50)
 lbl_q.grid(row=2, column=0, padx=5, pady=5, sticky='w')
 ent_q.grid(row=2, column=1, padx=5, pady=5)
 
@@ -243,11 +256,18 @@ btn_open = Button(master=frm_form, text='Open public key', width=15, command= la
 btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='w')
 btn_open = Button(master=frm_form, text='Open private key', width=15, command= lambda: askOpenFile(3))
 btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='e')
-lbl_file_status = Label(master=frm_form)
-lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
+
 
 btn_compute_key = Button(master=frm_form, text='Compute key', width=15, command=computeKey)
 btn_compute_key.grid(row=5, column=1, padx=5, pady=5, sticky='w')
+
+btn_save = Button(master=frm_form, text='Save key to file', width=15, command=saveKey)
+btn_save.grid(row=5, column=1, padx=5, pady=5, sticky='e')
+
+lbl_file_status = Label(master=frm_form, text='Status:')
+lbl_file_status.grid(row=6, column=0, padx=5, pady=5, sticky="w")
+lbl_file_status = Label(master=frm_form)
+lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
 
 
 # Result key label
@@ -261,10 +281,6 @@ lbl_private_text = Label(master=frm_form, text='')
 lbl_private.grid(row=9, column=0, padx=5, pady=5, sticky="w")
 lbl_private_text.grid(row=9, column=1, padx=5, pady=5, sticky="w")
 
-btn_save = Button(master=frm_form, text='Save key to file', width=15, command=saveKey)
-btn_save.grid(row=10, column=2, padx=5, pady=5)
-
-
 
 # Initialize radio button
 var1 = StringVar()
@@ -273,19 +289,19 @@ var2 = StringVar()
 var2.set(1)
 
 # Encryption mode
-lbl_mode = Label(master=frm_form, text='Choose mode:')
+lbl_mode = Label(master=frm_form, text='Message mode:')
 lbl_mode.grid(row=11, column=0, padx=5, pady=5, sticky="w")
-rad_mode = Radiobutton(master=frm_form,text='Input Text', variable = var1, value=1)
+rad_mode = Radiobutton(master=frm_form,text='Input Message', variable = var1, value=1)
 rad_mode.grid(row=11, column=1, padx=5, pady=5, sticky='w')
-rad_mode = Radiobutton(master=frm_form,text='File', variable = var1, value=2)
+rad_mode = Radiobutton(master=frm_form,text='File Message', variable = var1, value=2)
 rad_mode.grid(row=12, column=1, padx=5, pady=5, sticky='w')
 
 # Key mode
-lbl_mode = Label(master=frm_form, text='Choose key mode:')
+lbl_mode = Label(master=frm_form, text='Key mode:')
 lbl_mode.grid(row=13, column=0, padx=5, pady=5, sticky="w")
 rad_mode = Radiobutton(master=frm_form,text='Input Key', variable = var2, value=1)
 rad_mode.grid(row=13, column=1, padx=5, pady=5, sticky='w')
-rad_mode = Radiobutton(master=frm_form,text='Key File', variable = var2, value=2)
+rad_mode = Radiobutton(master=frm_form,text='File Key', variable = var2, value=2)
 rad_mode.grid(row=14, column=1, padx=5, pady=5, sticky='w')
 
 
@@ -294,7 +310,7 @@ rad_mode.grid(row=14, column=1, padx=5, pady=5, sticky='w')
 btn_compute = Button(master=frm_form, text='Encrypt', width=10, height=2, command=encryptGUI)
 btn_compute.grid(row=15, column=1, padx=5, pady=5, sticky='w')
 btn_compute = Button(master=frm_form, text='Decrypt', width=10, height=2, command=decryptGUI)
-btn_compute.grid(row=15, column=2, padx=5, pady=5)
+btn_compute.grid(row=15, column=1, padx=5, pady=5, sticky='e')
 
 # Result label
 lbl_result = Label(master=frm_form, text='Result:')
@@ -306,29 +322,30 @@ lbl_result_text.grid(row=16, column=1, padx=5, pady=5, sticky="w")
 # Processing time label
 lbl_time = Label(master=frm_form, text='Processing Time:')
 lbl_time_text = Label(master=frm_form, text='')
-lbl_time.grid(row=16, column=2, padx=5, pady=5, sticky="w")
-lbl_time_text.grid(row=16, column=3, padx=5, pady=5, sticky="w")
+lbl_time.grid(row=17, column=0, padx=5, pady=5, sticky="w")
+lbl_time_text.grid(row=17, column=1, padx=5, pady=5, sticky="w")
 
 # Action button
 btn_copy = Button(master=frm_form, text='Copy result', width=10, command=copy)
-btn_copy.grid(row=17, column=1, padx=5, pady=5, sticky='w')
+btn_copy.grid(row=18, column=1, padx=5, pady=5, sticky='w')
 
 
 # File option
 lbl_file_name = Label(master=frm_form, text='File name:')
-ent_file_name = Entry(master=frm_form, width=30)
-lbl_file_name.grid(row=18, column=0, padx=5, pady=5, sticky="w")
-ent_file_name.grid(row=18, column=1, padx=5, pady=5)
+ent_file_name = Entry(master=frm_form, width=50)
+lbl_file_name.grid(row=19, column=0, padx=5, pady=5, sticky="w")
+ent_file_name.grid(row=19, column=1, padx=5, pady=5)
 lbl_file_ext = Label(master=frm_form, text='File extension:')
-ent_file_ext = Entry(master=frm_form, width=30)
-lbl_file_ext.grid(row=19, column=0, padx=5, pady=5, sticky="w")
-ent_file_ext.grid(row=19, column=1, padx=5, pady=5)
+ent_file_ext = Entry(master=frm_form, width=50)
+lbl_file_ext.grid(row=20, column=0, padx=5, pady=5, sticky="w")
+ent_file_ext.grid(row=20, column=1, padx=5, pady=5)
 
 
-btn_save = Button(master=frm_form, text='Save to file', width=10, command=save)
-btn_save.grid(row=20, column=2, padx=5, pady=5)
+btn_save = Button(master=frm_form, text='Save ciphertext to file', width=18, command=save)
+btn_save.grid(row=21, column=1, padx=5, pady=5, sticky="w")
 btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
-btn_exit.grid(row=20, column=3, padx=5, pady=5, sticky='e')
+btn_exit.grid(row=21, column=1, padx=5, pady=5, sticky='e')
+
 
 # Keeps window alive 
 window.mainloop()
