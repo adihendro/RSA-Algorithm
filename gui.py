@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfile
 from algoritma_rsa import *
 import time
+import os
 
 def encryptGUI():
     global public, private
@@ -204,6 +205,9 @@ def save():
     text = bytearray(lbl_result_text['text'], 'latin-1')
     filename = ent_file_name.get() + '.' + ent_file_ext.get()
     writeFile(text, filename, 'wb')
+    file = open(filename)
+    file.seek(0, os.SEEK_END)
+    lbl_filesize_text['text'] = file.tell(), "bytes"
     lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 # Exit function 
@@ -346,6 +350,12 @@ btn_save.grid(row=21, column=1, padx=5, pady=5, sticky="w")
 btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
 btn_exit.grid(row=21, column=1, padx=5, pady=5, sticky='e')
 
+
+# File size information
+lbl_filesize = Label(master=frm_form, text='File size:')
+lbl_filesize_text = Label(master=frm_form, text='')
+lbl_filesize.grid(row=21, column=0, padx=5, pady=5, sticky="w")
+lbl_filesize_text.grid(row=21, column=1, padx=5, pady=5, sticky="w")
 
 # Keeps window alive 
 window.mainloop()
