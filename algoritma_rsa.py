@@ -79,8 +79,7 @@ def encrypt(key, plaintext):
     for x in plaintext:
         cipherText = pow(ord(x), publicKey, n)
         result.append(hex(cipherText))
-    # print(result)
-    return (result)
+    return result
     
 
 def decrypt(key, ciphertext):

@@ -34,7 +34,7 @@ def encryptGUI():
             file.seek(0, os.SEEK_END)
             lbl_filesize_text['text'] = file.tell(), "bytes"
         elif(mode2 == '2'):
-            text = bytearray(encrypt(openFile('.temporary-public','r'), openFile('.temporary','r')), 'latin-1')
+            text = encrypt(openFile('.temporary-public', 'r'), openFile('.temporary','r'))
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
@@ -72,9 +72,10 @@ def decryptGUI():
             writeFile(''.join(chr(i) for i in text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         elif(mode2 == '2'):
-            text = bytearray(decrypt(private, openFile('.temporary','r')), 'latin-1')
+            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
+            text = decrypt(private, openFile('.temporary', 'r').split())
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(text, filename, 'w')
+            writeFile(''.join(chr(i) for i in text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
         endTime = time.perf_counter()
     lbl_time_text['text'] = endTime - startTime
