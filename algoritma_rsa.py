@@ -83,15 +83,14 @@ def encrypt(key, plaintext):
         cipherText = pow(ord(x), publicKey, n)
         result.append(hex(cipherText))
     
+    print(result)
     return (result)
     
-
 
 def decrypt(key, ciphertext):
     
     privateKey, n = key
     result = []
-    
     for i in ciphertext:
         plain = (int(i, 16) for i in ciphertext)
     for j in plain:
@@ -99,8 +98,8 @@ def decrypt(key, ciphertext):
         result.append(p)
     return result
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
 
     p = int(input(" Enter p (must a prime number): "))
     q = int(input(" Enter q (must a prime number): "))
