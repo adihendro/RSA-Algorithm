@@ -54,11 +54,11 @@ def decryptGUI():
     if(mode2 == '2'): #file key
         private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
 
-    if(mode == '1'): #input text
+    if(mode == '1'): #input message
         startTime = time.perf_counter()
         lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         endTime = time.perf_counter()
-    elif(mode == '2'): #file
+    elif(mode == '2'): #file message
         startTime = time.perf_counter()
         if(not(ent_file_name.get() and ent_file_ext.get())):
             messagebox.showerror('Error', 'Enter file name and extension!')
