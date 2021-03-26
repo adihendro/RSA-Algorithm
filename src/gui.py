@@ -5,6 +5,11 @@ from algoritma_rsa import *
 import time
 import os
 
+
+public = (0,0)
+private = (0,0)
+
+
 def encryptGUI():
     global public, private
     # Get key and mode
@@ -15,32 +20,23 @@ def encryptGUI():
     if(lbl_public_text['text']==''):
         computeKey()
 
-    if(mode == '1'): #input text
-        startTime = time.perf_counter()
-        if(mode2 == '1'):
-            lbl_result_text['text'] = encrypt(public, message)
-        elif(mode2 == '2'):
-            lbl_result_text['text'] = encrypt(openFile('.temporary-public', 'r'), message)
-        endTime = time.perf_counter()
+    if(mode2 == '2'): #file key
+        public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
 
-    elif(mode == '2'): #file
+    if(mode == '1'): #input message
         startTime = time.perf_counter()
-        if(mode2 == '1'):
-            text = encrypt(public, openFile('.temporary','r'))
-            filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(' '.join(text), filename, 'w')
-            lbl_result_text['text'] = 'Success! Saved in ' + filename
-            file = open(filename)
-            file.seek(0, os.SEEK_END)
-            lbl_filesize_text['text'] = file.tell(), "bytes"
-        elif(mode2 == '2'):
-            text = encrypt(openFile('.temporary-public', 'r'), openFile('.temporary','r'))
-            filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(' '.join(text), filename, 'w')
-            lbl_result_text['text'] = 'Success! Saved in ' + filename
-            file = open(filename)
-            file.seek(0, os.SEEK_END)
-            lbl_filesize_text['text'] = file.tell(), "bytes"
+        lbl_result_text['text'] = encrypt(public, message)
+        endTime = time.perf_counter()
+    elif(mode == '2'): #file message
+        startTime = time.perf_counter()
+        if(not(ent_file_name.get() and ent_file_ext.get())):
+            messagebox.showerror('Error', 'Enter file name and extension!')
+            return
+        text = encrypt(public, openFile('.temporary','r'))
+        filename = ent_file_name.get() + '.' + ent_file_ext.get()
+        writeFile(' '.join(text), filename, 'w')
+        lbl_result_text['text'] = 'Success! Saved in ' + filename
+        checkFileSize(filename)
         endTime = time.perf_counter()
     lbl_time_text['text'] = endTime - startTime
 
@@ -55,37 +51,32 @@ def decryptGUI():
     if(lbl_public_text['text']==''):
         computeKey()
 
+    if(mode2 == '2'): #file key
+        private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
+
     if(mode == '1'): #input text
         startTime = time.perf_counter()
-        if(mode2 == '1'):
-            lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
-        elif(mode2 == '2'):
-            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
-            lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
+        lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
         endTime = time.perf_counter()
-
     elif(mode == '2'): #file
         startTime = time.perf_counter()
-        if(mode2 == '1'):
-            text = decrypt(private, openFile('.temporary', 'r').split())
-            filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(''.join(chr(i) for i in text), filename, 'w')
-            lbl_result_text['text'] = 'Success! Saved in ' + filename
-        elif(mode2 == '2'):
-            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
-            text = decrypt(private, openFile('.temporary', 'r').split())
-            filename = ent_file_name.get() + '.' + ent_file_ext.get()
-            writeFile(''.join(chr(i) for i in text), filename, 'w')
-            lbl_result_text['text'] = 'Success! Saved in ' + filename
+        if(not(ent_file_name.get() and ent_file_ext.get())):
+            messagebox.showerror('Error', 'Enter file name and extension!')
+            return
+        text = decrypt(private, openFile('.temporary', 'r').split())
+        filename = ent_file_name.get() + '.' + ent_file_ext.get()
+        writeFile(''.join(chr(i) for i in text), filename, 'w')
+        lbl_result_text['text'] = 'Success! Saved in ' + filename
+        checkFileSize(filename)
         endTime = time.perf_counter()
     lbl_time_text['text'] = endTime - startTime
 
-public = (0,0)
-private = (0,0)
 
 def computeKey():
     try:
         global public, private
+        if not (ent_p.get().isnumeric() and ent_q.get().isnumeric()):
+            raise Exception("Enter p and q please!")
         public, private = generateKey(int(ent_p.get()), int(ent_q.get()))
         lbl_public_text['text'] = public
         lbl_private_text['text'] = private
@@ -162,6 +153,8 @@ def clear():
     ent_q.delete(0,END)
     ent_file_name.delete(0,END)
     ent_file_ext.delete(0,END)
+    var1.set(1)
+    var2.set(1)
     lbl_file_status['text'] = ''
     lbl_public_text['text'] = ''
     lbl_private_text['text'] = ''
@@ -201,10 +194,13 @@ def save():
     text = bytearray(lbl_result_text['text'], 'latin-1')
     filename = ent_file_name.get() + '.' + ent_file_ext.get()
     writeFile(text, filename, 'wb')
+    checkFileSize(filename)
+    lbl_result_text['text'] = 'Success! Saved in ' + filename
+
+def checkFileSize(filename):
     file = open(filename)
     file.seek(0, os.SEEK_END)
     lbl_filesize_text['text'] = file.tell(), "bytes"
-    lbl_result_text['text'] = 'Success! Saved in ' + filename
 
 # Exit function 
 def qExit(): 
