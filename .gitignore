@@ -142,3 +142,5 @@ cython_debug/
 .temporary
 .temporary-public
 .temporary-private
+public-key.pub
+private-key.pri
