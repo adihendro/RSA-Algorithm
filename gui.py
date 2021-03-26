@@ -30,11 +30,17 @@ def encryptGUI():
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
+            file = open(filename)
+            file.seek(0, os.SEEK_END)
+            lbl_filesize_text['text'] = file.tell(), "bytes"
         elif(mode2 == '2'):
             text = bytearray(encrypt(openFile('.temporary-public','r'), openFile('.temporary','r')), 'latin-1')
             filename = ent_file_name.get() + '.' + ent_file_ext.get()
             writeFile(' '.join(text), filename, 'w')
             lbl_result_text['text'] = 'Success! Saved in ' + filename
+            file = open(filename)
+            file.seek(0, os.SEEK_END)
+            lbl_filesize_text['text'] = file.tell(), "bytes"
         endTime = time.perf_counter()
     lbl_time_text['text'] = endTime - startTime
 
