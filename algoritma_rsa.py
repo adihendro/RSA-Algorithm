@@ -36,20 +36,18 @@ def isPrime(x):
         return False
     elif x == 2:
         return True
-    elif x == 4:
-        return False
     else:
         for i in range (2, x):
-            if (x % i != 0):
-                return True
-            return False
+            if (x % i == 0):
+                return False
+        return True
 
 
 
 def generateKey(p, q):
     if p == q:
         raise Exception("Sorry, number can't be equal")
-    elif not (isPrime(p)) and (isPrime(q)):
+    elif not ((isPrime(p)) and (isPrime(q))):
         raise Exception("Sorry, numbers must be prime")
     
     # if both numbers prime
@@ -81,8 +79,7 @@ def encrypt(key, plaintext):
     for x in plaintext:
         cipherText = pow(ord(x), publicKey, n)
         result.append(hex(cipherText))
-    
-    print(result)
+    # print(result)
     return (result)
     
 
